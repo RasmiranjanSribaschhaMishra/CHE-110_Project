@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for cross-origin frontend requests
+CORS(app)
 
 # Emission Factors (yearly kg CO2e approximations)
 EMISSION_FACTORS = {
@@ -20,26 +20,7 @@ EMISSION_FACTORS = {
     "waste_yearly": {"never": 500, "sometimes": 300, "always": 100}
 }
 
-@app.route('/', methods=['GET'])
-def index():
-    return jsonify({
-        "status": "online",
-        "service": "EcoTrack API",
-        "description": "Carbon footprint calculation serverless API"
-    })
-
-@app.route('/calculate', methods=['POST', 'GET'])
-@app.route('/api/calculate', methods=['POST', 'GET'])
-def calculate():
-    if request.method == 'GET':
-        return jsonify({
-            "status": "ready",
-            "message": "EcoTrack /api/calculate is operational. Send a POST request with your calculation parameters."
-        })
-
-    data = request.get_json(silent=True) or {}
-    
-    # Extract data with safe float parsing and fallbacks
+def perform_calculation(data):
     try:
         elec_kwh = float(data.get('electricity', 0) or 0)
     except (ValueError, TypeError):
@@ -77,7 +58,7 @@ def calculate():
 
     total_kg = energy_val + transport_val + diet_val + waste_val
     
-    return jsonify({
+    return {
         "totalTons": round(total_kg / 1000, 2),
         "breakdown": {
             "energy": round(energy_val / 1000, 2),
@@ -85,7 +66,22 @@ def calculate():
             "diet": round(diet_val / 1000, 2),
             "waste": round(waste_val / 1000, 2)
         }
-    })
+    }
+
+@app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
+@app.route('/<path:path>', methods=['GET', 'POST'])
+def handle_all(path):
+    if request.method == 'GET':
+        return jsonify({
+            "status": "online",
+            "service": "EcoTrack API",
+            "path_received": path,
+            "message": "EcoTrack API is running. Send POST request with parameters to calculate."
+        })
+    
+    data = request.get_json(silent=True) or {}
+    result = perform_calculation(data)
+    return jsonify(result)
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

@@ -17,3 +17,5 @@ ENV/
 .idea/
 .DS_Store
 Thumbs.db
+
+.vercel
