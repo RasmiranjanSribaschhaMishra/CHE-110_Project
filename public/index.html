@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack | Personal Carbon Footprint Calculator</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Main Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Background decoration -->
+    <div class="blob shape1"></div>
+    <div class="blob shape2"></div>
+    <div class="blob shape3"></div>
+
+    <main class="app-container">
+        
+        <!-- Welcome Screen -->
+        <section id="welcome-screen" class="screen active">
+            <div class="hero">
+                <i class="fa-solid fa-leaf leaf-icon"></i>
+                <h1>EcoTrack</h1>
+                <p>Discover your personal impact on the planet. Calculate your carbon footprint, visualize your emissions, and learn how to reduce them.</p>
+                <div class="stats-overview" id="previous-data-alert" style="display: none;">
+                    <p>Welcome back! You have a previously calculated footprint.</p>
+                    <button class="btn btn-secondary" onclick="app.showResults()">View Saved Results</button>
+                </div>
+                <button class="btn btn-primary btn-large" onclick="app.startWizard()">
+                    Start Calculation <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Wizard Screen -->
+        <section id="wizard-screen" class="screen">
+            <div class="wizard-header">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <h2 id="step-title">Step 1: Household Energy</h2>
+                <div class="step-indicator">Step <span id="current-step">1</span> of 3</div>
+            </div>
+
+            <form id="calculator-form">
+                <!-- Step 1: Energy -->
+                <div class="wizard-step active" data-step="1">
+                    <div class="form-group">
+                        <label for="electricity">Monthly Electricity Usage (kWh)</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-bolt"></i>
+                            <input type="number" id="electricity" min="0" placeholder="e.g., 300" required>
+                        </div>
+                        <small>Check your electricity bill for this value.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cooking_fuel">Primary Cooking Fuel</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-fire-burner"></i>
+                            <select id="cooking_fuel" required>
+                                <option value="" disabled selected>Select Fuel Type</option>
+                                <option value="lpg">LPG / Natural Gas</option>
+                                <option value="electricity">Electric / Induction</option>
+                                <option value="wood">Wood / Charcoal</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Transportation -->
+                <div class="wizard-step" data-step="2">
+                    <div class="form-group">
+                        <label for="car_distance">Monthly Car Travel (km)</label>
+                        <label class="toggle-slider">
+                            <span class="value-display" id="car-val">0 km</span>
+                            <input type="range" id="car_distance" min="0" max="3000" step="50" value="0" oninput="document.getElementById('car-val').textContent = this.value + ' km'">
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="car_type">Car Type (if driven)</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-car"></i>
+                            <select id="car_type">
+                                <option value="petrol">Petrol</option>
+                                <option value="diesel">Diesel</option>
+                                <option value="hybrid">Hybrid</option>
+                                <option value="electric">Electric Vehicle (EV)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="public_transport">Monthly Public Transport (km)</label>
+                        <label class="toggle-slider">
+                            <span class="value-display" id="pt-val">0 km</span>
+                            <input type="range" id="public_transport" min="0" max="2000" step="50" value="0" oninput="document.getElementById('pt-val').textContent = this.value + ' km'">
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="flights">Short-haul Flights per Year</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-plane"></i>
+                            <input type="number" id="flights" min="0" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Diet & Waste -->
+                <div class="wizard-step" data-step="3">
+                    <div class="form-group">
+                        <label>Dietary Preference</label>
+                        <div class="radio-group" id="diet-group">
+                            <label class="radio-card">
+                                <input type="radio" name="diet" value="meat_heavy" required>
+                                <i class="fa-solid fa-drumstick-bite"></i>
+                                <span>Meat Heavy</span>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="diet" value="average" checked>
+                                <i class="fa-solid fa-utensils"></i>
+                                <span>Average</span>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="diet" value="vegetarian">
+                                <i class="fa-solid fa-carrot"></i>
+                                <span>Vegetarian</span>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="diet" value="vegan">
+                                <i class="fa-solid fa-seedling"></i>
+                                <span>Vegan</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recycling">Recycling Habits</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-recycle"></i>
+                            <select id="recycling" required>
+                                <option value="never">Rarely/Never Recycle</option>
+                                <option value="sometimes" selected>Sometimes Recycle</option>
+                                <option value="always">Always or Compost</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+
+            <div class="wizard-actions">
+                <button type="button" class="btn btn-secondary" id="btn-prev" onclick="app.prevStep()" style="display: none;">Back</button>
+                <button type="button" class="btn btn-primary" id="btn-next" onclick="app.nextStep()">Next Step <i class="fa-solid fa-arrow-right"></i></button>
+                <button type="submit" class="btn btn-success" id="btn-submit" form="calculator-form" style="display: none;">Calculate Footprint <i class="fa-solid fa-chart-line"></i></button>
+            </div>
+        </section>
+
+        <!-- Results Screen -->
+        <section id="results-screen" class="screen">
+            <header class="dashboard-header">
+                <h2>Your Carbon Footprint</h2>
+                <button class="btn btn-icon" onclick="app.retake()" title="Recalculate"><i class="fa-solid fa-rotate-left"></i></button>
+            </header>
+
+            <div class="dashboard-grid">
+                <!-- Total Emissions Card -->
+                <div class="card highlight-card">
+                    <div class="card-title">Total Yearly Emissions</div>
+                    <div class="big-number">
+                        <span id="total-co2">0.0</span> <span class="unit">Tons CO₂e</span>
+                    </div>
+                    <div class="badge" id="emission-badge">Calculating...</div>
+                </div>
+
+                <!-- Chart: Categories -->
+                <div class="card chart-card">
+                    <div class="card-title">Breakdown by Category</div>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart: Comparison -->
+                <div class="card chart-card">
+                    <div class="card-title">How You Compare</div>
+                    <div class="chart-container">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                    <p class="chart-subtext">Global average is approx. 4.7 tons CO₂e per capita.</p>
+                </div>
+                
+                <!-- Personalized Tips -->
+                <div class="card tips-card">
+                    <div class="card-title"><i class="fa-solid fa-lightbulb text-warning"></i> Actionable Suggestions</div>
+                    <ul class="tips-list" id="tips-list">
+                        <!-- Tips will be injected via JS -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
