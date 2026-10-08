@@ -67,14 +67,14 @@ def perform_calculation(data):
         }
     }
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/calculate', methods=['GET', 'POST'])
-@app.route('/api/calculate', methods=['GET', 'POST'])
-def calculate():
+@app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
+@app.route('/<path:path>', methods=['GET', 'POST'])
+def calculate(path):
     if request.method == 'GET':
         return jsonify({
             "status": "ready",
             "service": "EcoTrack API",
+            "path_received": path,
             "message": "EcoTrack /api/calculate endpoint is online."
         })
     
